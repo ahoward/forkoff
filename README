@@ -1,0 +1,244 @@
+NAME
+
+  forkoff
+
+SYNOPSIS
+
+  brain-dead simple parallel processing for ruby
+
+URI
+
+  http://rubyforge.org/projects/codeforpeople
+
+INSTALL
+
+  gem install forkoff
+
+DESCRIPTION
+
+  forkoff works for any enumerable object, iterating a code block to run in a
+  child process and collecting the results.  forkoff can limit the number of
+  child processes which is, by default, 2.
+
+SAMPLES
+
+  
+  <========< samples/a.rb >========>
+
+  ~ > cat samples/a.rb
+
+    # forkoff makes it trivial to do parallel processing with ruby, the following
+    # prints out each word in a separate process
+    #
+    
+      require 'forkoff'
+    
+      %w( hey you ).forkoff!{|word| puts "#{ word } from #{ Process.pid }"}
+
+  ~ > ruby samples/a.rb
+
+    hey from 20683
+    you from 20684
+
+
+  <========< samples/b.rb >========>
+
+  ~ > cat samples/b.rb
+
+    # for example, this takes only 4 seconds or so to complete (8 iterations
+    # running in two processes = twice as fast)
+    #
+    
+      require 'forkoff'
+    
+      a = Time.now.to_f
+    
+      results =
+        (0..7).forkoff do |i|
+          sleep 1
+          i ** 2
+        end
+    
+      b = Time.now.to_f
+    
+      elapsed = b - a
+    
+      puts "elapsed: #{ elapsed }"
+      puts "results: #{ results.inspect }"
+
+  ~ > ruby samples/b.rb
+
+    elapsed: 4.07352209091187
+    results: [0, 1, 4, 9, 16, 25, 36, 49]
+
+
+  <========< samples/c.rb >========>
+
+  ~ > cat samples/c.rb
+
+    # forkoff does *NOT* spawn processes in batches, waiting for each batch to
+    # complete.  rather, it keeps a certain number of processes busy until all
+    # results have been gathered.  in otherwords the following will ensure that 3
+    # processes are running at all times, until the list is complete. note that
+    # the following will take about 3 seconds to run (3 sets of 3 @ 1 second).
+    #
+    
+    require 'forkoff'
+    
+    pid = Process.pid
+    
+    a = Time.now.to_f
+    
+    pstrees =
+      %w( a b c d e f g h i ).forkoff! :processes => 3 do |letter|
+        sleep 1
+        { letter => ` pstree -l 2 #{ pid } ` }
+      end
+    
+    
+    b = Time.now.to_f
+    
+    puts
+    puts "pid: #{ pid }"
+    puts "elapsed: #{ b - a }"
+    puts
+    
+    require 'yaml'
+    
+    pstrees.each do |pstree|
+      y pstree
+    end
+
+  ~ > ruby samples/c.rb
+
+    
+    pid: 20699
+    elapsed: 3.4574089050293
+    
+    --- 
+    a: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20700 ahoward ruby -Ilib samples/c.rb
+       |-+- 20701 ahoward ruby -Ilib samples/c.rb
+       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    b: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20700 ahoward ruby -Ilib samples/c.rb
+       |-+- 20701 ahoward ruby -Ilib samples/c.rb
+       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    c: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20700 ahoward (ruby)
+       |-+- 20701 ahoward (ruby)
+       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    d: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20709 ahoward ruby -Ilib samples/c.rb
+       |-+- 20710 ahoward ruby -Ilib samples/c.rb
+       \--- 20711 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    e: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20709 ahoward ruby -Ilib samples/c.rb
+       |-+- 20710 ahoward ruby -Ilib samples/c.rb
+       \--- 20711 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    f: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20709 ahoward (ruby)
+       |-+- 20710 ahoward (ruby)
+       \-+- 20711 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    g: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20718 ahoward ruby -Ilib samples/c.rb
+       |--- 20719 ahoward (ruby)
+       \--- 20720 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    h: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       \-+- 20720 ahoward ruby -Ilib samples/c.rb
+    
+    --- 
+    i: |
+      -+- 20699 ahoward ruby -Ilib samples/c.rb
+       |-+- 20718 ahoward ruby -Ilib samples/c.rb
+       |-+- 20719 ahoward ruby -Ilib samples/c.rb
+       \--- 20720 ahoward ruby -Ilib samples/c.rb
+    
+
+
+  <========< samples/d.rb >========>
+
+  ~ > cat samples/d.rb
+
+    # forkoff supports two strategies of reading the result from the child: via
+    # pipe (the default) or via file.  you can select which to use using the
+    # :strategy option.
+    #
+    
+      require 'forkoff'
+    
+      %w( hey you guys ).forkoff :strategy => :file do |word|
+        puts "#{ word } from #{ Process.pid }"
+      end
+
+  ~ > ruby samples/d.rb
+
+    hey from 20730
+    you from 20731
+    guys from 20732
+
+
+
+HISTORY
+  1.0.0
+    - move to github
+
+  0.0.4
+    - code re-org
+    - add :strategy option
+    - default number of processes is 2, not 8
+
+  0.0.1
+
+    - updated to use producer threds pushing onto a SizedQueue for each consumer
+      channel.  in this way the producers do not build up a massize parllel data
+      structure but provide data to the consumers only as fast as they can fork
+      and proccess it.  basically for a 4 process run you'll end up with 4
+      channels of size 1 between 4 produces and 4 consumers, each consumer is a
+      thread popping of jobs, forking, and yielding results.
+
+    - removed use of Queue for capturing the output.  now it's simply an array
+      of arrays which removed some sync overhead.
+
+    - you can configure the number of processes globally with
+
+        Forkoff.default['proccess'] = 4
+
+    - you can now pass either an options hash
+
+        forkoff( :processes => 2 ) ...
+
+      or plain vanilla number
+
+        forkoff( 2 ) ...
+
+      to the forkoff call
+
+    - default number of processes is 8, not 2
+        
+
+  0.0.0
+
+    initial version

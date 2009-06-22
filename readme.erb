@@ -1,0 +1,67 @@
+NAME
+
+  forkoff
+
+SYNOPSIS
+
+  brain-dead simple parallel processing for ruby
+
+URI
+
+  http://rubyforge.org/projects/codeforpeople
+
+INSTALL
+
+  gem install forkoff
+
+DESCRIPTION
+
+  forkoff works for any enumerable object, iterating a code block to run in a
+  child process and collecting the results.  forkoff can limit the number of
+  child processes which is, by default, 2.
+
+SAMPLES
+
+  <%= samples %>
+
+HISTORY
+  1.0.0
+    - move to github
+
+  0.0.4
+    - code re-org
+    - add :strategy option
+    - default number of processes is 2, not 8
+
+  0.0.1
+
+    - updated to use producer threds pushing onto a SizedQueue for each consumer
+      channel.  in this way the producers do not build up a massize parllel data
+      structure but provide data to the consumers only as fast as they can fork
+      and proccess it.  basically for a 4 process run you'll end up with 4
+      channels of size 1 between 4 produces and 4 consumers, each consumer is a
+      thread popping of jobs, forking, and yielding results.
+
+    - removed use of Queue for capturing the output.  now it's simply an array
+      of arrays which removed some sync overhead.
+
+    - you can configure the number of processes globally with
+
+        Forkoff.default['proccess'] = 4
+
+    - you can now pass either an options hash
+
+        forkoff( :processes => 2 ) ...
+
+      or plain vanilla number
+
+        forkoff( 2 ) ...
+
+      to the forkoff call
+
+    - default number of processes is 8, not 2
+        
+
+  0.0.0
+
+    initial version
