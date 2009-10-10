@@ -20,7 +20,7 @@ class T < Test::Unit::TestCase
 # it's faster
 #
   def test_0020
-    n = 7
+    n = 4
     strategies = :forkoff, :each
 
     4.times do
@@ -28,13 +28,13 @@ class T < Test::Unit::TestCase
 
       strategies.each do |strategy|
         a = Time.now.to_f
-        (0..4).send(strategy){|i| sleep 0.1}
+        (0..4).send(strategy){|i| sleep 0.2}
         b = Time.now.to_f
         elapsed = b - a
         result[strategy] = elapsed
       end
 
-      assert result[:forkoff] < result[:each], 'forkoff is faster than each'
+      assert result[:forkoff] < result[:each], 'forkoff is faster than each for long running tasks'
     end
   end
 
