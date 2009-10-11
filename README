@@ -9,6 +9,7 @@ SYNOPSIS
 URI
 
   http://rubyforge.org/projects/codeforpeople
+  http://github.com/ahoward/forkoff
 
 INSTALL
 
@@ -37,8 +38,8 @@ SAMPLES
 
   ~ > ruby samples/a.rb
 
-    hey from 20683
-    you from 20684
+    hey from 7907
+    you from 7908
 
 
   <========< samples/b.rb >========>
@@ -68,7 +69,7 @@ SAMPLES
 
   ~ > ruby samples/b.rb
 
-    elapsed: 4.07352209091187
+    elapsed: 4.19184589385986
     results: [0, 1, 4, 9, 16, 25, 36, 49]
 
 
@@ -112,69 +113,70 @@ SAMPLES
   ~ > ruby samples/c.rb
 
     
-    pid: 20699
-    elapsed: 3.4574089050293
+    pid: 7922
+    elapsed: 3.37899208068848
     
     --- 
     a: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20700 ahoward ruby -Ilib samples/c.rb
-       |-+- 20701 ahoward ruby -Ilib samples/c.rb
-       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07923 ahoward ruby -Ilib samples/c.rb
+       |-+- 07924 ahoward (ruby)
+       \-+- 07925 ahoward ruby -Ilib samples/c.rb
     
     --- 
     b: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20700 ahoward ruby -Ilib samples/c.rb
-       |-+- 20701 ahoward ruby -Ilib samples/c.rb
-       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07923 ahoward ruby -Ilib samples/c.rb
+       |-+- 07924 ahoward ruby -Ilib samples/c.rb
+       \-+- 07925 ahoward ruby -Ilib samples/c.rb
     
     --- 
     c: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20700 ahoward (ruby)
-       |-+- 20701 ahoward (ruby)
-       \-+- 20702 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07923 ahoward ruby -Ilib samples/c.rb
+       |-+- 07924 ahoward (ruby)
+       \-+- 07925 ahoward ruby -Ilib samples/c.rb
     
     --- 
     d: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20709 ahoward ruby -Ilib samples/c.rb
-       |-+- 20710 ahoward ruby -Ilib samples/c.rb
-       \--- 20711 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07932 ahoward ruby -Ilib samples/c.rb
+       |--- 07933 ahoward ruby -Ilib samples/c.rb
+       \--- 07934 ahoward ruby -Ilib samples/c.rb
     
     --- 
     e: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20709 ahoward ruby -Ilib samples/c.rb
-       |-+- 20710 ahoward ruby -Ilib samples/c.rb
-       \--- 20711 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |--- 07932 ahoward (ruby)
+       |-+- 07933 ahoward ruby -Ilib samples/c.rb
+       \-+- 07934 ahoward (ruby)
     
     --- 
     f: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20709 ahoward (ruby)
-       |-+- 20710 ahoward (ruby)
-       \-+- 20711 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |--- 07932 ahoward (ruby)
+       |-+- 07933 ahoward ruby -Ilib samples/c.rb
+       \-+- 07934 ahoward ruby -Ilib samples/c.rb
     
     --- 
     g: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20718 ahoward ruby -Ilib samples/c.rb
-       |--- 20719 ahoward (ruby)
-       \--- 20720 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07941 ahoward ruby -Ilib samples/c.rb
+       |--- 07942 ahoward ruby -Ilib samples/c.rb
+       \--- 07943 ahoward ruby -Ilib samples/c.rb
     
     --- 
     h: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       \-+- 20720 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |-+- 07941 ahoward (ruby)
+       |-+- 07942 ahoward ruby -Ilib samples/c.rb
+       \--- 07943 ahoward ruby -Ilib samples/c.rb
     
     --- 
     i: |
-      -+- 20699 ahoward ruby -Ilib samples/c.rb
-       |-+- 20718 ahoward ruby -Ilib samples/c.rb
-       |-+- 20719 ahoward ruby -Ilib samples/c.rb
-       \--- 20720 ahoward ruby -Ilib samples/c.rb
+      -+- 07922 ahoward ruby -Ilib samples/c.rb
+       |--- 07942 ahoward (ruby)
+       \-+- 07943 ahoward ruby -Ilib samples/c.rb
     
 
 
@@ -195,13 +197,21 @@ SAMPLES
 
   ~ > ruby samples/d.rb
 
-    hey from 20730
-    you from 20731
-    guys from 20732
+    hey from 7953
+    you from 7954
+    guys from 7955
 
 
 
 HISTORY
+  1.1.0 
+    - move to a model with one work queue and signals sent from consumers to
+    producer to noitify ready state.  this let's smaller jobs race through a
+    single process even while a larger job may have one sub-process bound up.
+    incorporates a fix from http://github.com/fredrikj/forkoff which meant
+    some processes would lag behind when jobs didn't have similar execution
+    times.
+
   1.0.0
     - move to github
 
