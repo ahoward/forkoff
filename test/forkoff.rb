@@ -38,4 +38,17 @@ class T < Test::Unit::TestCase
     end
   end
 
+# in case of different execution times for different processes
+#
+  def test_0030
+    a = Time.now.to_f
+    (0...4).forkoff(2) do |i|
+      sleep i.modulo(2)
+    end
+    b = Time.now.to_f
+    elapsed = b - a
+    assert elapsed < 2
+  end
+
+
 end

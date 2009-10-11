@@ -9,6 +9,7 @@ SYNOPSIS
 URI
 
   http://rubyforge.org/projects/codeforpeople
+  http://github.com/ahoward/forkoff
 
 INSTALL
 
@@ -25,6 +26,14 @@ SAMPLES
   <%= samples %>
 
 HISTORY
+  1.1.0 
+    - move to a model with one work queue and signals sent from consumers to
+    producer to noitify ready state.  this let's smaller jobs race through a
+    single process even while a larger job may have one sub-process bound up.
+    incorporates a fix from http://github.com/fredrikj/forkoff which meant
+    some processes would lag behind when jobs didn't have similar execution
+    times.
+
   1.0.0
     - move to github
 

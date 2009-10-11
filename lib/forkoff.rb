@@ -2,11 +2,15 @@ require 'thread'
 
 module Forkoff
   def version
-    '0.0.4'
+    '1.1.0'
   end
 
   def done
     @done ||= Object.new
+  end
+
+  def ready
+    @ready ||= Object.new
   end
 
   def default
@@ -137,7 +141,8 @@ module Enumerable
     options = { 'processes' => Integer(options) } unless Hash === options
     n = Integer( options['processes'] || options[:processes] || Forkoff.default['processes'] )
     strategy = options['strategy'] || options[:strategy] || 'pipe'
-    qs = Array.new(n){ SizedQueue.new 1 }
+    p2c = Queue.new
+    c2p = Queue.new
     results = Array.new(n){ [] }
 
     #
@@ -151,7 +156,8 @@ module Enumerable
             Thread.current.abort_on_exception = true
 
             loop do
-              value = qs[i].pop
+              c2p.push( Forkoff.ready )
+              value = p2c.pop
               break if value == Forkoff.done
               args, index = value
 
@@ -177,21 +183,17 @@ module Enumerable
     #
     # producers
     #
-      producers = []
-
-      n.times do |i|
-        thread = Thread.new do
+      producer = 
+        Thread.new do
           Thread.current.abort_on_exception = true
-          each_with_index do |args, j|
-            every_nth = j.modulo(n) == i
-            next unless every_nth
-            qs[ j.modulo(n) ].push( [args, j] )
+          each_with_index do |args, i|
+            ready = c2p.pop
+            p2c.push( [args, i] )
           end
-          qs[ i ].push( Forkoff.done )
+          n.times do |i|
+            p2c.push( Forkoff.done )
+          end
         end
-
-        producers << thread
-      end
 
     #
     # wait for all consumers to complete
