@@ -2,15 +2,11 @@ require 'thread'
 
 module Forkoff
   def version
-    '1.1.0'
+    '1.1.1'
   end
 
   def done
     @done ||= Object.new
-  end
-
-  def ready
-    @ready ||= Object.new
   end
 
   def default
@@ -141,8 +137,7 @@ module Enumerable
     options = { 'processes' => Integer(options) } unless Hash === options
     n = Integer( options['processes'] || options[:processes] || Forkoff.default['processes'] )
     strategy = options['strategy'] || options[:strategy] || 'pipe'
-    p2c = Queue.new
-    c2p = Queue.new
+    q = SizedQueue.new(n)
     results = Array.new(n){ [] }
 
     #
@@ -156,8 +151,7 @@ module Enumerable
             Thread.current.abort_on_exception = true
 
             loop do
-              c2p.push( Forkoff.ready )
-              value = p2c.pop
+              value = q.pop
               break if value == Forkoff.done
               args, index = value
 
@@ -187,11 +181,10 @@ module Enumerable
         Thread.new do
           Thread.current.abort_on_exception = true
           each_with_index do |args, i|
-            ready = c2p.pop
-            p2c.push( [args, i] )
+            q.push( [args, i] )
           end
           n.times do |i|
-            p2c.push( Forkoff.done )
+            q.push( Forkoff.done )
           end
         end
 
