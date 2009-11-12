@@ -90,7 +90,7 @@ module Forkoff
         end
       w.write( Marshal.dump( result ) )
       w.close
-      exit
+      exit!
     end
 
     w.close
@@ -116,7 +116,7 @@ module Forkoff
             e
           end
         fd.write( Marshal.dump( result ) )
-        exit
+        exit!
       end
 
       Process.waitpid pid
