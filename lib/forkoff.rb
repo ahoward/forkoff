@@ -147,7 +147,7 @@ module Enumerable
     strategy = options['strategy'] || options[:strategy] || :pipe
     strategy_method = Forkoff::STRATEGIES[strategy]
     q = SizedQueue.new(n)
-    results = Array.new(n){ [] }
+    result_sets = Array.new(n){ [] }
 
     #
     # consumers
@@ -165,10 +165,10 @@ module Enumerable
 
               result = Forkoff.send( strategy_method, *args, &block )
 
-              results[i].push( [result, index] )
+              result_sets[i].push( [result, index] )
             end
 
-            results[i].push( :done )
+            result_sets[i].push( :done )
           end
 
         consumers << thread
@@ -200,7 +200,7 @@ module Enumerable
     #
       returned = []
 
-      results.each do |set|
+      result_sets.each do |set|
         set.each do |result, index|
           break if index.nil?
           returned[index] = result
