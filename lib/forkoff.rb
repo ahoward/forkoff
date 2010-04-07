@@ -5,10 +5,6 @@ module Forkoff
     '1.1.1'
   end
 
-  def done
-    @done ||= Object.new
-  end
-
   def default
     @default ||= { 'processes' => 2 }
   end
@@ -151,9 +147,8 @@ module Enumerable
             Thread.current.abort_on_exception = true
 
             loop do
-              value = q.pop
-              break if value == Forkoff.done
-              args, index = value
+              args, index = q.pop
+              break if index.nil?
 
               result =
                 case strategy.to_s.strip.downcase
@@ -168,7 +163,7 @@ module Enumerable
               results[i].push( [result, index] )
             end
 
-            results[i].push( Forkoff.done )
+            results[i].push( :done )
           end
 
         consumers << thread
@@ -184,7 +179,7 @@ module Enumerable
             q.push( [args, i] )
           end
           n.times do |i|
-            q.push( Forkoff.done )
+            q.push( :done )
           end
         end
 
@@ -201,9 +196,8 @@ module Enumerable
       returned = []
 
       results.each do |set|
-        set.each do |value|
-          break if value == Forkoff.done
-          result, index = value
+        set.each do |result, index|
+          break if index.nil?
           returned[index] = result
         end
       end
