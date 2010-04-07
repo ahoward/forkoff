@@ -152,10 +152,8 @@ module Enumerable
     #
     # consumers
     #
-      consumers = []
-
-      n.times do |i|
-        thread =
+      consumers =
+        result_sets.map do |set|
           Thread.new do
             Thread.current.abort_on_exception = true
 
@@ -165,14 +163,12 @@ module Enumerable
 
               result = Forkoff.send( strategy_method, *args, &block )
 
-              result_sets[i].push( [result, index] )
+              set.push( [result, index] )
             end
 
-            result_sets[i].push( :done )
+            set.push( :done )
           end
-
-        consumers << thread
-      end
+        end
 
     #
     # producers
