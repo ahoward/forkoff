@@ -126,6 +126,18 @@ module Forkoff
   class Error < ::StandardError; end
 
   extend self
+
+  STRATEGIES = Hash.new do |h, key|
+    strategy = key.to_s.strip.downcase.to_sym
+    raise ArgumentError, "strategy=#{ strategy.class }(#{ strategy.inspect })" unless h.has_key?(strategy)
+    h[key] = h[strategy]
+  end
+
+  STRATEGIES.merge!(
+    :pipe => :pipe_result,
+    :file => :file_result
+  )
+
 end
 
 module Enumerable 
@@ -133,7 +145,7 @@ module Enumerable
     options = { 'processes' => Integer(options) } unless Hash === options
     n = Integer( options['processes'] || options[:processes] || Forkoff.default['processes'] )
     strategy = options['strategy'] || options[:strategy] || :pipe
-    strategy = strategy.to_s.strip.downcase.to_sym
+    strategy_method = Forkoff::STRATEGIES[strategy]
     q = SizedQueue.new(n)
     results = Array.new(n){ [] }
 
@@ -151,15 +163,7 @@ module Enumerable
               args, index = q.pop
               break if index.nil?
 
-              result =
-                case strategy
-                  when :pipe
-                    Forkoff.pipe_result(*args, &block)
-                  when :file
-                    Forkoff.file_result(*args, &block)
-                  else
-                    raise ArgumentError, "strategy=#{ strategy.class }(#{ strategy.inspect })"
-                end          
+              result = Forkoff.send( strategy_method, *args, &block )
 
               results[i].push( [result, index] )
             end
