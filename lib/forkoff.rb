@@ -132,7 +132,8 @@ module Enumerable
   def forkoff options = {}, &block
     options = { 'processes' => Integer(options) } unless Hash === options
     n = Integer( options['processes'] || options[:processes] || Forkoff.default['processes'] )
-    strategy = options['strategy'] || options[:strategy] || 'pipe'
+    strategy = options['strategy'] || options[:strategy] || :pipe
+    strategy = strategy.to_s.strip.downcase.to_sym
     q = SizedQueue.new(n)
     results = Array.new(n){ [] }
 
@@ -151,10 +152,10 @@ module Enumerable
               break if index.nil?
 
               result =
-                case strategy.to_s.strip.downcase
-                  when 'pipe'
+                case strategy
+                  when :pipe
                     Forkoff.pipe_result(*args, &block)
-                  when 'file'
+                  when :file
                     Forkoff.file_result(*args, &block)
                   else
                     raise ArgumentError, "strategy=#{ strategy.class }(#{ strategy.inspect })"
