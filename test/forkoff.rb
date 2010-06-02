@@ -50,5 +50,25 @@ class T < Test::Unit::TestCase
     assert elapsed < 2
   end
 
+  def test_hash
+    received = []
+    sent = [{:foo => :bar, 1=>2}, {:baz => 42}]
+    received = sent.forkoff do |h|
+      h
+    end
+    assert_equal sent, received
+  end
+
+  def test_multi_argument
+    sent = [[1,2,3], [4, 5, 6]]
+    received = sent.forkoff do |a, b, c|
+      [a, b, c]
+    end
+    assert_equal sent, received
+    received = sent.forkoff do |arr|
+      arr
+    end
+    assert_equal sent, received
+  end
 
 end

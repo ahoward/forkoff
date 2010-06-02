@@ -72,7 +72,7 @@ module Forkoff
     end
   end
 
-  def pipe_result *args, &block
+  def pipe_result arg, &block
     r, w = IO.pipe
     pid = fork
 
@@ -80,7 +80,7 @@ module Forkoff
       r.close
       result =
         begin
-          block.call(*args)
+          block.call(arg)
         rescue Object => e
           e
         end
@@ -100,14 +100,14 @@ module Forkoff
     return result
   end
 
-  def file_result *args, &block
+  def file_result arg, &block
     tmpfile do |fd|
       pid = fork
 
       unless pid
         result =
           begin
-            block.call(*args)
+            block.call(arg)
           rescue Object => e
             e
           end
@@ -158,12 +158,11 @@ module Enumerable
             Thread.current.abort_on_exception = true
 
             loop do
-              args, index = q.pop
+              arg, index = q.pop
               break if index.nil?
+              result = Forkoff.send( strategy_method, arg, &block )
 
-              result = Forkoff.send( strategy_method, *args, &block )
-
-              set.push( [result, index] )
+              set.push [result, index]
             end
 
             set.push( :done )
@@ -176,8 +175,8 @@ module Enumerable
       producer = 
         Thread.new do
           Thread.current.abort_on_exception = true
-          each_with_index do |args, i|
-            q.push( [args, i] )
+          each_with_index do |arg, i|
+            q.push [arg, i]
           end
           n.times do |i|
             q.push( :done )
