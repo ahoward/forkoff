@@ -23,7 +23,7 @@ class T < Test::Unit::TestCase
     n = 4
     strategies = :forkoff, :each
 
-    4.times do
+    n.times do
       result = {}
 
       strategies.each do |strategy|

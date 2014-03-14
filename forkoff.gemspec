@@ -3,25 +3,39 @@
 
 Gem::Specification::new do |spec|
   spec.name = "forkoff"
-  spec.description = 'brain-dead simple parallel processing for ruby' 
-  spec.version = "1.1.1"
+  spec.version = "1.2.0"
   spec.platform = Gem::Platform::RUBY
   spec.summary = "forkoff"
+  spec.description = "description: forkoff kicks the ass"
+  spec.license = "Ruby"
 
-  spec.files = ["forkoff.gemspec", "lib", "lib/forkoff.rb", "rakefile", "README", "readme.erb", "samples", "samples/a.rb", "samples/b.rb", "samples/c.rb", "samples/d.rb", "test", "test/forkoff.rb"]
+  spec.files =
+["README",
+ "Rakefile",
+ "forkoff.gemspec",
+ "lib",
+ "lib/forkoff.rb",
+ "readme.erb",
+ "samples",
+ "samples/a.rb",
+ "samples/b.rb",
+ "samples/c.rb",
+ "samples/d.rb",
+ "test",
+ "test/forkoff_test.rb"]
+
   spec.executables = []
   
   spec.require_path = "lib"
 
-  spec.has_rdoc = true
-  spec.test_files = "test/forkoff.rb"
-  #spec.add_dependency 'lib', '>= version'
-  #spec.add_dependency 'fattr'
+  spec.test_files = nil
+
+  
 
   spec.extensions.push(*[])
 
   spec.rubyforge_project = "codeforpeople"
   spec.author = "Ara T. Howard"
   spec.email = "ara.t.howard@gmail.com"
-  spec.homepage = "http://github.com/ahoward/forkoff/tree/master"
+  spec.homepage = "https://github.com/ahoward/forkoff"
 end

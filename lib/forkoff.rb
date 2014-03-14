@@ -2,7 +2,7 @@ require 'thread'
 
 module Forkoff
   def version
-    '1.1.1'
+    '1.2.0'
   end
 
   def default
@@ -142,6 +142,7 @@ end
 
 module Enumerable 
   def forkoff options = {}, &block
+  #
     options = { 'processes' => Integer(options) } unless Hash === options
     n = Integer( options['processes'] || options[:processes] || Forkoff.default['processes'] )
     strategy = options['strategy'] || options[:strategy] || :pipe
@@ -149,60 +150,60 @@ module Enumerable
     q = SizedQueue.new(n)
     result_sets = Array.new(n){ [] }
 
-    #
-    # consumers
-    #
-      consumers =
-        result_sets.map do |set|
-          Thread.new do
-            Thread.current.abort_on_exception = true
-
-            loop do
-              arg, index = q.pop
-              break if index.nil?
-              result = Forkoff.send( strategy_method, arg, &block )
-
-              set.push [result, index]
-            end
-
-            set.push( :done )
-          end
-        end
-
-    #
-    # producers
-    #
-      producer = 
+  # consumers
+  #
+    consumers =
+      result_sets.map do |set|
         Thread.new do
           Thread.current.abort_on_exception = true
-          each_with_index do |arg, i|
-            q.push [arg, i]
+
+          loop do
+            arg, index = q.pop
+            break if index.nil?
+            result = Forkoff.send( strategy_method, arg, &block )
+
+            set.push [result, index]
           end
-          n.times do |i|
-            q.push( :done )
-          end
-        end
 
-    #
-    # wait for all consumers to complete
-    #
-      consumers.each do |t|
-        t.value
-      end
-
-    #
-    # gather results
-    #
-      returned = []
-
-      result_sets.each do |set|
-        set.each do |result, index|
-          break if index.nil?
-          returned[index] = result
+          set.push( :done )
         end
       end
 
-      returned
+  # producers
+  #
+    producer = 
+      Thread.new do
+        Thread.current.abort_on_exception = true
+        each_with_index do |arg, i|
+          q.push [arg, i]
+        end
+        n.times do |i|
+          q.push( :done )
+        end
+      end
+
+  # wait for all consumers to complete
+  #
+    consumers.each do |t|
+      t.value
+    end
+
+  # wait for the producer to complete
+  #
+    producer.value
+
+  # gather results
+  #
+    returned = []
+
+    result_sets.each do |set|
+      set.each do |result, index|
+        break if index.nil?
+        returned[index] = result
+      end
+    end
+
+    returned
   end
 
   alias_method 'forkoff!', 'forkoff'
